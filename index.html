@@ -1,271 +1,931 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>iRacing Hub</title>
-  <link rel="stylesheet" href="css/style.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>iRacing Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#0d0f14;--bg2:#13161e;--bg3:#191d27;--card:#1c2030;
+  --border:#252b3b;--border2:#313a52;
+  --text:#e2e6f3;--text2:#8a94b0;--text3:#4a5270;
+  --accent:#e8a000;--accentH:#f5b800;--accdim:rgba(232,160,0,.13);
+  --green:#27c96a;--gdim:rgba(39,201,106,.1);
+  --red:#e05252;--rdim:rgba(224,82,82,.1);
+  --blue:#4a9eff;--bdim:rgba(74,158,255,.1);
+  --mono:"JetBrains Mono",monospace;
+  --r:10px;--r2:6px;--shadow:0 8px 32px rgba(0,0,0,.5);
+  --nav:60px;
+}
+@media(prefers-color-scheme:light){
+  :root:not([data-theme=dark]){
+    --bg:#f0f2f7;--bg2:#e6e9f2;--bg3:#dde0eb;--card:#fff;
+    --border:#ced3e6;--border2:#b0b8d0;
+    --text:#1a1d2e;--text2:#555e80;--text3:#9099b8;
+    --accent:#b87800;--accentH:#cc8800;--accdim:rgba(184,120,0,.1);
+    --green:#1a9e56;--gdim:rgba(26,158,86,.1);
+    --red:#c03030;--rdim:rgba(192,48,48,.1);
+    --shadow:0 4px 20px rgba(0,0,0,.12);
+  }
+}
+:root[data-theme=light]{
+  --bg:#f0f2f7;--bg2:#e6e9f2;--bg3:#dde0eb;--card:#fff;
+  --border:#ced3e6;--border2:#b0b8d0;
+  --text:#1a1d2e;--text2:#555e80;--text3:#9099b8;
+  --accent:#b87800;--accentH:#cc8800;--accdim:rgba(184,120,0,.1);
+  --green:#1a9e56;--gdim:rgba(26,158,86,.1);
+  --red:#c03030;--rdim:rgba(192,48,48,.1);
+  --shadow:0 4px 20px rgba(0,0,0,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:"Inter",system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+input,textarea,select{font-family:"Inter",sans-serif;font-size:.9rem;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--r2);color:var(--text);padding:9px 13px;width:100%;outline:none;transition:border-color .18s}
+input:focus,textarea:focus{border-color:var(--accent)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+textarea{resize:vertical}
+code{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:.82em;color:var(--accent);font-family:var(--mono)}
+small{font-size:.76rem;color:var(--text2);display:block;margin-top:4px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* === HEADER === */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:90;height:var(--nav)}
+.hdr-in{max-width:1360px;margin:0 auto;padding:0 20px;height:100%;display:flex;align-items:center;gap:20px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none}
+.logo svg{flex-shrink:0}
+.logo-txt{font-family:"Barlow Condensed",sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:.03em;color:var(--text2)}
+.logo-txt strong{color:var(--accent)}
+.nav{display:flex;gap:2px;flex:1}
+.nav-btn{background:none;border:none;color:var(--text2);cursor:pointer;font-family:"Inter",sans-serif;font-size:.87rem;font-weight:500;padding:7px 15px;border-radius:var(--r2);transition:color .15s,background .15s}
+.nav-btn:hover{background:var(--bg3);color:var(--text)}
+.nav-btn.on{background:var(--accdim);color:var(--accent);font-weight:600}
+.gh-btn{background:none;border:1.5px solid var(--border);color:var(--text2);cursor:pointer;font-family:"Inter",sans-serif;font-size:.82rem;font-weight:500;padding:6px 13px;border-radius:var(--r2);display:flex;align-items:center;gap:6px;transition:border-color .15s,color .15s;flex-shrink:0}
+.gh-btn:hover,.gh-btn.pulse{border-color:var(--accent);color:var(--accent)}
+
+/* === SIDE PANEL === */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:190;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.on{opacity:1;pointer-events:auto}
+.panel{position:fixed;top:0;right:-440px;width:440px;max-width:100vw;height:100vh;background:var(--bg2);border-left:1px solid var(--border);z-index:200;overflow-y:auto;transition:right .25s ease;box-shadow:var(--shadow)}
+.panel.on{right:0}
+.panel-in{padding:32px 28px;display:flex;flex-direction:column;gap:18px}
+.panel-in h2{font-family:"Barlow Condensed",sans-serif;font-size:1.25rem;font-weight:700;color:var(--text)}
+.panel-desc{font-size:.85rem;color:var(--text2);line-height:1.7}
+.panel-actions{display:flex;gap:10px}
+.status-msg{font-size:.82rem;padding:8px 12px;border-radius:var(--r2);min-height:32px;transition:all .2s}
+.status-msg.ok{background:var(--gdim);color:var(--green)}
+.status-msg.err{background:var(--rdim);color:var(--red)}
+.status-msg.load{color:var(--text2)}
+
+/* === CONTENT === */
+.content{max-width:1360px;margin:0 auto;padding:32px 20px 80px}
+.pane{display:none}
+.pane.on{display:block}
+.pg-hd{margin-bottom:28px}
+.pg-hd h1{font-family:"Barlow Condensed",sans-serif;font-size:2rem;font-weight:800;color:var(--text);margin-bottom:6px}
+.pg-hd p{color:var(--text2);font-size:.9rem}
+.pg-hd-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.pg-hd-row h1{font-family:"Barlow Condensed",sans-serif;font-size:2rem;font-weight:800;color:var(--text);margin-bottom:6px}
+.pg-hd-row p{color:var(--text2);font-size:.9rem}
+
+/* === FORM === */
+.fgrp{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.fgrp label{font-size:.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* === CARDS === */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px}
+.card h2{font-family:"Barlow Condensed",sans-serif;font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+
+/* === BUTTONS === */
+.btn{font-family:"Inter",sans-serif;font-size:.87rem;font-weight:600;padding:9px 18px;border-radius:var(--r2);border:none;cursor:pointer;transition:background .15s,transform .1s;display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:scale(.98)}
+.btn-p{background:var(--accent);color:#000}
+.btn-p:hover{background:var(--accentH)}
+.btn-g{background:transparent;color:var(--text2);border:1.5px solid var(--border)}
+.btn-g:hover{background:var(--bg3);color:var(--text)}
+.btn-d{background:var(--rdim);color:var(--red);border:1px solid rgba(224,82,82,.2)}
+.btn-d:hover{background:var(--red);color:#fff}
+.btn-sm{padding:5px 11px;font-size:.78rem}
+.btn-block{width:100%;justify-content:center;padding:13px;font-size:.95rem}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* === TOGGLE GROUP === */
+.tgl{display:flex;gap:5px;flex-wrap:wrap}
+.tgl-btn{background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--r2);color:var(--text2);cursor:pointer;font-family:"Inter",sans-serif;font-size:.85rem;font-weight:500;padding:7px 14px;transition:all .14s}
+.tgl-btn:hover{border-color:var(--accent);color:var(--text)}
+.tgl-btn.on{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
+
+/* === ZONE BUTTONS === */
+.zones{display:flex;gap:8px}
+.zone-btn{flex:1;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--r2);color:var(--text2);cursor:pointer;font-family:"Inter",sans-serif;font-size:.82rem;font-weight:500;padding:11px 6px;text-align:center;transition:all .14s}
+.zone-btn:hover{border-color:var(--accent);color:var(--text)}
+.zone-btn.on{background:var(--accdim);border-color:var(--accent);color:var(--accent);font-weight:700}
+.zone-icon{display:block;font-size:1.2rem;margin-bottom:4px}
+
+/* === BUILDER LAYOUT === */
+.builder{display:grid;grid-template-columns:370px 1fr;gap:22px;align-items:start}
+@media(max-width:880px){.builder{grid-template-columns:1fr}}
+.builder-form{position:sticky;top:calc(var(--nav) + 16px)}
+.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:420px;color:var(--text3);text-align:center;background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
+.placeholder p{max-width:260px;font-size:.9rem;color:var(--text2)}
+.placeholder strong{color:var(--accent)}
+
+/* === REC CARD === */
+.rec-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.rec-hd{padding:20px 22px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--bg2) 0%,var(--card) 100%)}
+.rec-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.badge{font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
+.b-oval{background:rgba(232,160,0,.2);color:var(--accent);border:1px solid rgba(232,160,0,.3)}
+.b-gt{background:var(--bdim);color:var(--blue);border:1px solid rgba(74,158,255,.25)}
+.b-loose,.b-oversteer{background:var(--rdim);color:var(--red);border:1px solid rgba(224,82,82,.25)}
+.b-tight,.b-understeer{background:var(--bdim);color:var(--blue);border:1px solid rgba(74,158,255,.25)}
+.b-zone{background:var(--accdim);color:var(--accent);border:1px solid rgba(232,160,0,.25)}
+.b-sev{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.rec-title{font-family:"Barlow Condensed",sans-serif;font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.rec-desc{font-size:.84rem;color:var(--text2);font-style:italic}
+.rec-ct{font-size:.76rem;color:var(--text3);margin-top:7px}
+.fixes{padding:18px 22px;display:flex;flex-direction:column;gap:12px}
+.fix{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--r2);padding:14px}
+.fix-hd{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.fix-n{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#000;font-size:.68rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fix-cat{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.fix-adj{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:3px}
+.fix-why{font-size:.78rem;color:var(--text2);line-height:1.5}
+.rec-ft{padding:14px 22px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rec-notes{font-size:.78rem;color:var(--text2);font-style:italic}
+
+/* === LIBRARY === */
+.lib-bar{display:flex;gap:12px;align-items:center;margin-bottom:22px;flex-wrap:wrap}
+.search-in{max-width:340px;flex-shrink:0}
+.lib-count{font-size:.82rem;color:var(--text3)}
+.setup-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.setup-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s}
+.setup-card:hover{border-color:var(--border2)}
+.sc-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.sc-title{font-size:.94rem;font-weight:600;color:var(--text)}
+.sc-info{font-size:.78rem;color:var(--text2)}
+.sc-fixes{font-size:.74rem;color:var(--text3);border-top:1px solid var(--border);padding-top:8px}
+.sc-actions{display:flex;gap:7px;margin-top:auto;align-items:center}
+.sc-date{font-size:.7rem;color:var(--text3);margin-left:auto}
+
+/* === SCHEDULE === */
+.sch-list{display:flex;flex-direction:column;gap:14px}
+.race-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;display:grid;grid-template-columns:150px 1fr auto;transition:border-color .15s}
+.race-card:hover{border-color:var(--border2)}
+.race-card.past{opacity:.45;border-style:dashed}
+.r-cdown{background:var(--bg3);border-right:1px solid var(--border);padding:18px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px}
+.cdown-num{font-family:"Barlow Condensed",sans-serif;font-size:1.35rem;font-weight:800;color:var(--accent);line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.cdown-lbl{font-size:.67rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);font-weight:600}
+.cdown-date{font-size:.73rem;color:var(--text2);margin-top:2px;line-height:1.4}
+.r-info{padding:18px 20px;display:flex;flex-direction:column;gap:5px}
+.r-league{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--accent)}
+.r-name{font-family:"Barlow Condensed",sans-serif;font-size:1.2rem;font-weight:700;color:var(--text)}
+.r-det{font-size:.8rem;color:var(--text2);display:flex;gap:14px;flex-wrap:wrap}
+.r-notes{font-size:.75rem;color:var(--text3);font-style:italic;margin-top:2px}
+.r-actions{padding:18px 14px;display:flex;flex-direction:column;gap:7px;justify-content:center}
+
+/* === EMPTY / LOADING === */
+.empty{text-align:center;padding:56px 20px;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty p{max-width:260px;font-size:.88rem;color:var(--text2)}
+.empty strong{color:var(--accent)}
+.loading{display:flex;align-items:center;justify-content:center;gap:12px;padding:56px;color:var(--text3);font-size:.88rem}
+.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spinner{animation:none;border-top-color:var(--accent)}}
+
+/* === MODALS === */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .18s}
+.modal-ov.on{opacity:1;pointer-events:auto}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:28px;width:100%;max-width:460px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px}
+.modal h2{font-family:"Barlow Condensed",sans-serif;font-size:1.2rem;font-weight:700;color:var(--text);padding-bottom:12px;border-bottom:1px solid var(--border)}
+.modal-actions{display:flex;gap:9px}
+
+/* === BANNER === */
+.banner{background:var(--accdim);border:1px solid rgba(232,160,0,.25);border-radius:var(--r);padding:13px 18px;margin-bottom:22px;display:flex;align-items:center;gap:12px;font-size:.85rem;color:var(--text)}
+.banner a{color:var(--accent);font-weight:600}
+
+/* === AI BADGE === */
+.b-ai{background:linear-gradient(135deg,rgba(74,158,255,.18),rgba(139,92,246,.18));color:#a78bfa;border:1px solid rgba(139,92,246,.3)}
+.ai-note{font-size:.74rem;color:var(--text3);padding:10px 22px 0;font-style:italic}
+
+/* === TOAST === */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--bg2);border:1.5px solid var(--border);color:var(--text);padding:10px 22px;border-radius:100px;font-size:.85rem;font-weight:500;opacity:0;pointer-events:none;transition:all .22s;z-index:500;white-space:nowrap;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--green);color:var(--green)}
+.toast.err{border-color:var(--red);color:var(--red)}
+
+@media(max-width:680px){
+  .race-card{grid-template-columns:1fr}
+  .r-cdown{border-right:none;border-bottom:1px solid var(--border);flex-direction:row;justify-content:space-between;padding:14px 18px}
+  .r-actions{flex-direction:row;padding:10px 18px}
+  .frow{grid-template-columns:1fr}
+  .zones{flex-wrap:wrap}
+  .zone-btn{flex:none;width:calc(50% - 4px)}
+  .nav-btn{padding:7px 10px;font-size:.8rem}
+}
+</style>
 </head>
 <body>
 
-<!-- =====================================================
-     HEADER
-====================================================== -->
-<header class="site-header">
-  <div class="header-inner">
-    <div class="logo">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="16" r="14" stroke="#e8a000" stroke-width="2"/>
-        <circle cx="16" cy="16" r="8" fill="#e8a000" opacity="0.15"/>
-        <path d="M8 16 Q16 6 24 16 Q16 26 8 16Z" fill="#e8a000" opacity="0.7"/>
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="#">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="14" r="12.5" stroke="#e8a000" stroke-width="1.5"/>
+        <circle cx="14" cy="14" r="6.5" fill="#e8a000" fill-opacity=".15"/>
+        <path d="M7 14 Q14 5.5 21 14 Q14 22.5 7 14Z" fill="#e8a000" fill-opacity=".8"/>
       </svg>
-      <span class="logo-text">iRacing<strong>Hub</strong></span>
-    </div>
-    <nav class="main-nav">
-      <button class="nav-btn active" data-tab="setup">Setup Builder</button>
+      <span class="logo-txt">iRacing<strong>Hub</strong></span>
+    </a>
+    <nav class="nav">
+      <button class="nav-btn on" data-tab="setup">Setup Builder</button>
       <button class="nav-btn" data-tab="library">My Setups</button>
       <button class="nav-btn" data-tab="schedule">League Schedule</button>
     </nav>
-    <button class="settings-btn" id="settingsToggle" title="GitHub Settings">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
+    <button class="gh-btn" id="ghToggle">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       GitHub
     </button>
   </div>
 </header>
 
-<!-- =====================================================
-     SETTINGS PANEL (slide-in)
-====================================================== -->
-<aside class="settings-panel" id="settingsPanel">
-  <div class="settings-inner">
+<!-- SETTINGS PANEL -->
+<div class="overlay" id="overlay"></div>
+<aside class="panel" id="panel">
+  <div class="panel-in">
     <h2>GitHub Storage Setup</h2>
-    <p class="settings-desc">
-      Your setups and schedule are stored as JSON files in a GitHub repo.
-      You need a <a href="https://github.com/settings/tokens/new?scopes=repo&description=iRacing%20Hub" target="_blank">Personal Access Token</a>
-      with <code>repo</code> scope.
-    </p>
+    <p class="panel-desc">Your setups and schedule are stored as JSON files in your GitHub repo. You need a <a href="https://github.com/settings/tokens/new?scopes=repo&description=iRacing+Hub" target="_blank">Personal Access Token</a> with <code>repo</code> scope.</p>
+    <div class="fgrp"><label>GitHub Username</label><input id="ghOwner" placeholder="e.g. dylanfoster" autocomplete="off"/></div>
+    <div class="fgrp"><label>Repository Name</label><input id="ghRepo" placeholder="e.g. iracing-hub" autocomplete="off"/></div>
+    <div class="fgrp"><label>Personal Access Token</label><input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off"/><small>Stored only in your browser — never in the repo.</small></div>
+    <div class="panel-actions">
+      <button class="btn btn-p" id="saveGH">Save &amp; Test Connection</button>
+      <button class="btn btn-g" id="closePanel">Cancel</button>
+    </div>
+    <div class="status-msg" id="ghStatus"></div>
 
-    <div class="form-group">
-      <label for="ghOwner">GitHub Username</label>
-      <input type="text" id="ghOwner" placeholder="e.g. dylanfoster" autocomplete="off" />
+    <div style="border-top:1px solid var(--border);margin:4px 0;padding-top:18px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:4px">
+        AI Setup Advisor
+        <span style="font-size:.7rem;font-weight:600;background:var(--accdim);color:var(--accent);border:1px solid rgba(232,160,0,.3);border-radius:20px;padding:2px 8px;margin-left:6px;vertical-align:middle">OPTIONAL</span>
+      </div>
+      <p class="panel-desc" style="font-size:.82rem;margin-bottom:12px">Enter your <a href="https://console.anthropic.com/settings/keys" target="_blank">Anthropic API key</a> and the Setup Builder will use Claude AI for deeper, context-aware recommendations based on exactly what you describe — instead of the built-in guide.</p>
+      <div class="fgrp"><label>Anthropic API Key</label><input type="password" id="aiKey" placeholder="sk-ant-api03-…" autocomplete="off"/><small>Stored only in your browser. Never sent to GitHub or anywhere else.</small></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-g" style="flex:1" id="saveAI">Save AI Key</button>
+        <button class="btn btn-d btn-sm" id="clearAI" style="flex-shrink:0">Clear</button>
+      </div>
+      <div class="status-msg" id="aiStatus" style="margin-top:8px"></div>
     </div>
-    <div class="form-group">
-      <label for="ghRepo">Repository Name</label>
-      <input type="text" id="ghRepo" placeholder="e.g. iracing-hub" autocomplete="off" />
-    </div>
-    <div class="form-group">
-      <label for="ghToken">Personal Access Token</label>
-      <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" />
-      <small>Stored only in your browser's localStorage. Never shared.</small>
-    </div>
-
-    <div class="settings-actions">
-      <button class="btn btn-primary" id="saveSettings">Save & Test Connection</button>
-      <button class="btn btn-ghost" id="closeSettings">Cancel</button>
-    </div>
-    <div id="settingsStatus" class="settings-status"></div>
   </div>
 </aside>
-<div class="settings-overlay" id="settingsOverlay"></div>
 
-<!-- =====================================================
-     MAIN CONTENT
-====================================================== -->
-<main class="main-content">
+<!-- MAIN -->
+<main class="content">
 
-  <!-- ---- TAB: SETUP BUILDER ------------------------- -->
-  <section class="tab-pane active" id="tab-setup">
-    <div class="page-header">
+  <!-- SETUP BUILDER -->
+  <section class="pane on" id="pane-setup">
+    <div class="pg-hd">
       <h1>Setup Builder</h1>
-      <p>Tell us what the car is doing wrong and we'll give you targeted setup adjustments.</p>
+      <p>Tell us what the car is doing wrong and get targeted, prioritized adjustments.</p>
     </div>
-
-    <div class="builder-layout">
-
-      <!-- LEFT: Form -->
+    <div class="builder">
       <div class="builder-form card">
         <h2>Describe the Problem</h2>
-
-        <div class="form-group">
+        <div class="fgrp">
           <label>Car Type</label>
-          <div class="toggle-group" id="carTypeToggle">
-            <button class="toggle-btn active" data-value="oval">Oval / Stock Car</button>
-            <button class="toggle-btn" data-value="gt">GT / Sports Car</button>
+          <div class="tgl" id="carTypeTgl">
+            <button class="tgl-btn on" data-v="oval">Oval / Stock Car</button>
+            <button class="tgl-btn" data-v="gt">GT / Sports Car</button>
           </div>
         </div>
-
-        <div class="form-group">
-          <label for="carName">Car (optional)</label>
-          <input type="text" id="carName" placeholder="e.g. NASCAR Cup Series" list="carSuggestions" />
-          <datalist id="carSuggestions"></datalist>
+        <div class="fgrp">
+          <label>Car (optional)</label>
+          <input id="carName" placeholder="e.g. NASCAR Cup Series" list="carDL"/>
+          <datalist id="carDL"></datalist>
         </div>
-
-        <div class="form-group">
-          <label for="trackName">Track (optional)</label>
-          <input type="text" id="trackName" placeholder="e.g. Daytona, Watkins Glen" />
+        <div class="fgrp">
+          <label>Track (optional)</label>
+          <input id="trackName" placeholder="e.g. Bristol Motor Speedway"/>
         </div>
-
-        <div class="form-group">
+        <div class="fgrp">
           <label>Balance Problem</label>
-          <div class="toggle-group" id="balanceToggle">
-            <!-- populated by JS based on car type -->
-          </div>
+          <div class="tgl" id="balanceTgl"></div>
         </div>
-
-        <div class="form-group">
-          <label>Where on track?</label>
-          <div class="track-zones" id="zoneButtons">
-            <!-- populated by JS based on car type -->
-          </div>
+        <div class="fgrp">
+          <label>Where on Track?</label>
+          <div class="zones" id="zoneBtns"></div>
         </div>
-
-        <div class="form-group">
+        <div class="fgrp">
           <label>Severity</label>
-          <div class="toggle-group" id="severityToggle">
-            <button class="toggle-btn" data-value="slight">Slight</button>
-            <button class="toggle-btn active" data-value="moderate">Moderate</button>
-            <button class="toggle-btn" data-value="severe">Severe</button>
+          <div class="tgl" id="severityTgl">
+            <button class="tgl-btn" data-v="slight">Slight</button>
+            <button class="tgl-btn on" data-v="moderate">Moderate</button>
+            <button class="tgl-btn" data-v="severe">Severe</button>
           </div>
         </div>
-
-        <div class="form-group">
-          <label for="driverNotes">Notes (optional)</label>
-          <textarea id="driverNotes" rows="2" placeholder="Any other context — track conditions, session type, tire age…"></textarea>
+        <div class="fgrp">
+          <label>Notes (optional)</label>
+          <textarea id="driverNotes" rows="2" placeholder="Track conditions, tire age, session type…"></textarea>
         </div>
-
-        <button class="btn btn-primary btn-block" id="generateBtn">
-          Generate Setup Recommendations →
-        </button>
+        <button class="btn btn-p btn-block" id="generateBtn">Generate Recommendations →</button>
       </div>
-
-      <!-- RIGHT: Results -->
-      <div class="builder-results" id="builderResults">
-        <div class="results-placeholder">
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <circle cx="32" cy="32" r="30" stroke="var(--border)" stroke-width="2" stroke-dasharray="6 4"/>
-            <path d="M20 32 Q32 16 44 32 Q32 48 20 32Z" fill="var(--accent)" opacity="0.2"/>
-            <circle cx="32" cy="32" r="5" fill="var(--accent)" opacity="0.5"/>
-          </svg>
+      <div id="results">
+        <div class="placeholder">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="28" r="25" stroke="var(--border2)" stroke-width="1.5" stroke-dasharray="6 4"/><path d="M14 28 Q28 12 42 28 Q28 44 14 28Z" fill="var(--accent)" fill-opacity=".18"/><circle cx="28" cy="28" r="5" fill="var(--accent)" fill-opacity=".4"/></svg>
           <p>Fill in the form and hit <strong>Generate</strong> to see your setup recommendations.</p>
         </div>
       </div>
-
     </div>
   </section>
 
-  <!-- ---- TAB: SAVED SETUPS -------------------------- -->
-  <section class="tab-pane" id="tab-library">
-    <div class="page-header">
+  <!-- MY SETUPS -->
+  <section class="pane" id="pane-library">
+    <div class="pg-hd">
       <h1>My Setups</h1>
-      <p>All setups you've saved — search by car or track.</p>
+      <p>All setups you've saved — searchable by car, track, or notes.</p>
     </div>
-
-    <div class="library-toolbar">
-      <input type="text" id="librarySearch" placeholder="Search by car, track, or notes…" class="search-input" />
-      <div class="library-counts">
-        <span id="libraryCount">Loading…</span>
-      </div>
+    <div class="lib-bar">
+      <input class="search-in" id="libSearch" placeholder="Search by car, track, notes…"/>
+      <span class="lib-count" id="libCount"></span>
     </div>
-
     <div class="setup-grid" id="setupGrid">
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <span>Loading setups from GitHub…</span>
-      </div>
+      <div class="loading"><div class="spinner"></div>Loading from GitHub…</div>
     </div>
   </section>
 
-  <!-- ---- TAB: LEAGUE SCHEDULE ----------------------- -->
-  <section class="tab-pane" id="tab-schedule">
-    <div class="page-header-row">
-      <div>
-        <h1>League Schedule</h1>
-        <p>Your upcoming races with live countdowns.</p>
-      </div>
-      <button class="btn btn-primary" id="addRaceBtn">+ Add Race</button>
+  <!-- LEAGUE SCHEDULE -->
+  <section class="pane" id="pane-schedule">
+    <div class="pg-hd-row">
+      <div><h1>League Schedule</h1><p>Your upcoming races with live countdowns.</p></div>
+      <button class="btn btn-p" id="addRaceBtn">+ Add Race</button>
     </div>
-
-    <div class="schedule-list" id="scheduleList">
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <span>Loading schedule from GitHub…</span>
-      </div>
+    <div class="sch-list" id="schList">
+      <div class="loading"><div class="spinner"></div>Loading from GitHub…</div>
     </div>
   </section>
 
 </main>
 
-<!-- =====================================================
-     MODALS
-====================================================== -->
-
-<!-- Save Setup Modal -->
-<div class="modal-overlay" id="saveSetupOverlay">
-  <div class="modal" id="saveSetupModal">
+<!-- MODAL: Save Setup -->
+<div class="modal-ov" id="saveOv">
+  <div class="modal">
     <h2>Save This Setup</h2>
-    <div class="form-group">
-      <label for="setupTitle">Setup Name</label>
-      <input type="text" id="setupTitle" placeholder="e.g. Daytona - Entry Fix v2" />
-    </div>
+    <div class="fgrp"><label>Setup Name</label><input id="setupTitle" placeholder="e.g. Bristol — Entry Fix v2"/></div>
     <div class="modal-actions">
-      <button class="btn btn-primary" id="confirmSaveSetup">Save to GitHub</button>
-      <button class="btn btn-ghost modal-close" data-modal="saveSetupOverlay">Cancel</button>
+      <button class="btn btn-p" id="confirmSave">Save to GitHub</button>
+      <button class="btn btn-g" data-close="saveOv">Cancel</button>
     </div>
-    <div id="saveSetupStatus" class="settings-status"></div>
+    <div class="status-msg" id="saveStatus"></div>
   </div>
 </div>
 
-<!-- Add Race Modal -->
-<div class="modal-overlay" id="addRaceOverlay">
-  <div class="modal" id="addRaceModal">
+<!-- MODAL: Add Race -->
+<div class="modal-ov" id="addRaceOv">
+  <div class="modal">
     <h2>Add Race to Schedule</h2>
-    <div class="form-group">
-      <label for="raceLeague">League Name</label>
-      <input type="text" id="raceLeague" placeholder="e.g. ARCA Pro Series" />
+    <div class="fgrp"><label>League Name</label><input id="rLeague" placeholder="e.g. ARCA Pro Series"/></div>
+    <div class="fgrp"><label>Series / Car</label><input id="rSeries" placeholder="e.g. NASCAR Cup Series"/></div>
+    <div class="fgrp"><label>Track</label><input id="rTrack" placeholder="e.g. Bristol Motor Speedway"/></div>
+    <div class="frow">
+      <div class="fgrp"><label>Date &amp; Time</label><input type="datetime-local" id="rDate"/></div>
+      <div class="fgrp"><label>Laps / Distance</label><input id="rLaps" placeholder="e.g. 500 laps"/></div>
     </div>
-    <div class="form-group">
-      <label for="raceSeries">Series / Car</label>
-      <input type="text" id="raceSeries" placeholder="e.g. NASCAR Cup Series" />
-    </div>
-    <div class="form-group">
-      <label for="raceTrack">Track</label>
-      <input type="text" id="raceTrack" placeholder="e.g. Bristol Motor Speedway" />
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="raceDate">Date &amp; Time</label>
-        <input type="datetime-local" id="raceDate" />
-      </div>
-      <div class="form-group">
-        <label for="raceLaps">Laps / Distance</label>
-        <input type="text" id="raceLaps" placeholder="e.g. 150 laps" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="raceNotes">Notes</label>
-      <textarea id="raceNotes" rows="2" placeholder="Setup thoughts, rival watch, weather…"></textarea>
-    </div>
+    <div class="fgrp"><label>Notes</label><textarea id="rNotes" rows="2" placeholder="Setup thoughts, weather, rival watch…"></textarea></div>
     <div class="modal-actions">
-      <button class="btn btn-primary" id="confirmAddRace">Save Race</button>
-      <button class="btn btn-ghost modal-close" data-modal="addRaceOverlay">Cancel</button>
+      <button class="btn btn-p" id="confirmRace">Save Race</button>
+      <button class="btn btn-g" data-close="addRaceOv">Cancel</button>
     </div>
-    <div id="addRaceStatus" class="settings-status"></div>
+    <div class="status-msg" id="raceStatus"></div>
   </div>
 </div>
 
-<!-- =====================================================
-     TOAST NOTIFICATION
-====================================================== -->
 <div class="toast" id="toast"></div>
 
-<!-- =====================================================
-     SCRIPTS
-====================================================== -->
-<script src="js/setup-engine.js"></script>
-<script src="js/github-api.js"></script>
-<script src="js/app.js"></script>
+<script>
+// =============================================
+// SETUP ENGINE
+// =============================================
+const ovalRecs={
+  loose:{
+    entry:{desc:"Car snaps into oversteer on corner entry",fixes:[
+      {cat:"Brakes",adj:"Increase front brake bias +1–2%",why:"More front bias slows the nose relative to the rear on entry"},
+      {cat:"Springs (Rear)",adj:"Stiffen rear springs +10–20 lb/in",why:"A stiffer rear resists squat and reduces rotation on entry"},
+      {cat:"Crossweight / Wedge",adj:"Add wedge +0.5–1%",why:"More right-rear weight increases rear grip on corner entry"},
+      {cat:"Shocks (Rear)",adj:"Increase rear rebound damping",why:"More rebound keeps the rear planted longer on corner entry"},
+      {cat:"Sway Bar (Rear)",adj:"Stiffen rear sway bar",why:"Limits rear roll and reduces oversteer tendency on entry"}
+    ]},
+    center:{desc:"Rear slides at the apex under constant speed",fixes:[
+      {cat:"Rear Ride Height",adj:"Raise rear ride height +1/8 in",why:"Higher rear shifts weight rearward and increases rear mechanical grip"},
+      {cat:"Sway Bar (Rear)",adj:"Stiffen rear sway bar",why:"Reduces mid-corner roll and keeps rear planted at the apex"},
+      {cat:"Crossweight / Wedge",adj:"Add wedge +0.5%",why:"More right-rear load improves mid-corner rear traction"},
+      {cat:"Springs (Rear)",adj:"Stiffen right-rear spring +10 lb/in",why:"Reduces RR compression mid-corner which stabilizes the rear"},
+      {cat:"Shocks (Rear)",adj:"Increase rear rebound damping",why:"Slows weight transfer for a more stable mid-corner feel"}
+    ]},
+    exit:{desc:"Car steps out when getting back to throttle",fixes:[
+      {cat:"Springs (Rear)",adj:"Stiffen rear springs +10–20 lb/in",why:"Limits squat on acceleration, reducing rear-end step-out"},
+      {cat:"Rear Ride Height",adj:"Lower rear ride height −1/8 in",why:"Lowers CG and reduces rear roll moment on exit"},
+      {cat:"Crossweight / Wedge",adj:"Add wedge +0.5–1%",why:"More right-rear load gives the RR tire more exit traction"},
+      {cat:"Shocks (Rear)",adj:"Increase rear compression damping",why:"Slows squat rate on throttle and keeps rear grip stable"},
+      {cat:"Throttle",adj:"Use a softer throttle map if available",why:"Reduces snap oversteer from sudden power application"}
+    ]}
+  },
+  tight:{
+    entry:{desc:"Front pushes wide — car won't rotate on turn-in",fixes:[
+      {cat:"Brakes",adj:"Decrease front brake bias −1–2%",why:"Less front bias allows the nose to rotate more freely on entry"},
+      {cat:"Springs (Front)",adj:"Soften front springs −10–20 lb/in",why:"More front compliance increases front mechanical grip on entry"},
+      {cat:"Crossweight / Wedge",adj:"Remove wedge −0.5–1%",why:"Less right-rear load shifts lateral grip toward the front axle"},
+      {cat:"Front Ride Height",adj:"Lower front ride height −1/8 in",why:"Lower front increases aero grip and helps turn-in response"},
+      {cat:"Shocks (Front)",adj:"Reduce front rebound damping",why:"Allows the front end to settle faster on corner entry"}
+    ]},
+    center:{desc:"Car won't hold the line at the apex — front plows",fixes:[
+      {cat:"Front Ride Height",adj:"Lower front ride height −1/8 in",why:"Increases front downforce and lowers front CG"},
+      {cat:"Sway Bar (Front)",adj:"Soften front sway bar",why:"Allows more front roll which loads the outside front tire"},
+      {cat:"Springs (Front)",adj:"Soften left-front spring −10 lb/in",why:"More LF compression lets the tire work better mid-corner"},
+      {cat:"Crossweight / Wedge",adj:"Remove wedge −0.5%",why:"Less RR load shifts more grip to the front axle"},
+      {cat:"Tires (Front)",adj:"Lower left-front pressure −0.5 psi",why:"Slightly lower LF pressure increases contact patch size"}
+    ]},
+    exit:{desc:"Car understeers on throttle — won't rotate under power",fixes:[
+      {cat:"Springs (Rear)",adj:"Soften rear springs −10–20 lb/in",why:"More rear squat on throttle transfers weight rearward, aiding rotation"},
+      {cat:"Crossweight / Wedge",adj:"Remove wedge −0.5%",why:"Less right-rear load reduces rear grip relative to the front"},
+      {cat:"Rear Ride Height",adj:"Raise rear ride height +1/8 in",why:"Raises rear CG and promotes more weight transfer for exit rotation"},
+      {cat:"Sway Bar (Front)",adj:"Stiffen front sway bar",why:"More front resistance controls exit behavior"},
+      {cat:"Shocks (Rear)",adj:"Reduce rear compression damping",why:"Allows more squat on throttle for a natural rotation"}
+    ]}
+  }
+};
+const gtRecs={
+  oversteer:{
+    entry:{desc:"Rear steps out before or during turn-in",fixes:[
+      {cat:"Springs (Front)",adj:"Stiffen front springs +5–10 N/mm",why:"A stiffer front resists compression on entry, shifting balance rearward"},
+      {cat:"Anti-Roll Bar (Rear)",adj:"Soften rear ARB",why:"Less rear roll stiffness reduces lateral load transfer at the rear"},
+      {cat:"Brakes",adj:"Increase front brake bias +1–2%",why:"More front bias slows the nose without upsetting the rear"},
+      {cat:"Differential",adj:"Reduce entry (lift-off) diff locking",why:"Less diff lock allows rear wheels to rotate independently on entry"},
+      {cat:"Rear Downforce",adj:"Increase rear wing angle +1–2°",why:"More rear aero load reduces rotation tendency at speed"}
+    ]},
+    midcorner:{desc:"Rear slides at the apex under constant speed",fixes:[
+      {cat:"Anti-Roll Bar (Rear)",adj:"Stiffen rear ARB",why:"More rear roll resistance limits how much the rear slides mid-corner"},
+      {cat:"Springs (Rear)",adj:"Stiffen rear springs +5 N/mm",why:"Reduces rear roll and keeps the rear settled through the apex"},
+      {cat:"Rear Downforce",adj:"Increase rear wing angle +1–2°",why:"More rear grip from aero helps at medium to high-speed corners"},
+      {cat:"Camber (Rear)",adj:"Increase rear negative camber −0.1 to −0.3°",why:"More camber keeps the outer tire flatter in the contact patch"},
+      {cat:"Tire Pressures (Rear)",adj:"Adjust rear pressures toward optimal target",why:"Incorrect pressures cause overheating and grip loss"}
+    ]},
+    exit:{desc:"Rear snaps out on throttle application",fixes:[
+      {cat:"Differential",adj:"Increase exit (power-on) diff locking",why:"More diff lock ties rear wheels together, reducing wheelspin rotation"},
+      {cat:"Springs (Rear)",adj:"Stiffen rear springs +5–10 N/mm",why:"Limits squat and rear roll on throttle application"},
+      {cat:"Rear Downforce",adj:"Increase rear wing angle +1–2°",why:"More rear aero grip helps stability on exit"},
+      {cat:"Anti-Roll Bar (Rear)",adj:"Stiffen rear ARB",why:"More rear stiffness reduces exit rotation tendency"},
+      {cat:"Throttle",adj:"Apply throttle more progressively",why:"Reduces the sharpness of power delivery that triggers snap"}
+    ]}
+  },
+  understeer:{
+    entry:{desc:"Front plows on corner entry — car won't turn in",fixes:[
+      {cat:"Springs (Front)",adj:"Soften front springs −5–10 N/mm",why:"More front compliance increases grip and turn-in response"},
+      {cat:"Anti-Roll Bar (Front)",adj:"Soften front ARB",why:"Less front roll stiffness allows more mechanical front grip"},
+      {cat:"Brakes",adj:"Decrease front brake bias −1–2%",why:"Less lock-up tendency lets front tires generate lateral grip sooner"},
+      {cat:"Front Ride Height",adj:"Lower front ride height −1–2 mm",why:"Increases front downforce and reduces front aero push"},
+      {cat:"Front Downforce",adj:"Increase front wing angle +1°",why:"More front aero grip aids high-speed turn-in response"}
+    ]},
+    midcorner:{desc:"Car runs wide through the apex — won't hold the line",fixes:[
+      {cat:"Anti-Roll Bar (Front)",adj:"Soften front ARB",why:"Allows outside front to load up more and generate more grip"},
+      {cat:"Front Downforce",adj:"Increase front wing angle +1–2°",why:"More front grip helps hold the line at medium and high speeds"},
+      {cat:"Camber (Front)",adj:"Increase front negative camber −0.1 to −0.3°",why:"More camber improves contact patch angle in corners"},
+      {cat:"Springs (Front)",adj:"Soften front springs −5 N/mm",why:"Allows more front compliance through sustained cornering"},
+      {cat:"Tire Pressures (Front)",adj:"Adjust front pressures toward optimal target",why:"Overinflated fronts give a smaller contact patch and less grip"}
+    ]},
+    exit:{desc:"Car understeers when getting back on throttle",fixes:[
+      {cat:"Differential",adj:"Reduce exit (power-on) diff locking",why:"Less locking allows inside rear to spin slightly, aiding rotation"},
+      {cat:"Anti-Roll Bar (Rear)",adj:"Soften rear ARB",why:"Reduces rear stiffness so the rear pivots more freely on exit"},
+      {cat:"Springs (Rear)",adj:"Soften rear springs −5 N/mm",why:"More rear compliance shifts weight rearward on throttle"},
+      {cat:"Rear Ride Height",adj:"Lower rear ride height −1 mm",why:"Reduces rear downforce slightly, trimming rear traction for balance"},
+      {cat:"Throttle",adj:"Apply throttle earlier and more progressively",why:"Smooth power application while still in yaw helps exit rotation"}
+    ]}
+  }
+};
+const sevCount={slight:2,moderate:3,severe:5};
+const carOpts={
+  oval:["NASCAR Cup Series","NASCAR Xfinity Series","NASCAR Truck Series","Late Model Stock","Super Late Model","SK Modified","Dirt Late Model","Dirt Modified","Sprint Car","Big Block Modified","Street Stock","Legends Car"],
+  gt:["GTP / LMDh","LMP2","GT3","GT4","Porsche Cup","Ferrari GT3","Lamborghini GT3","BMW M4 GT3","Mercedes AMG GT3","Audi R8 GT3","McLaren 720S GT3","Ford Mustang GT3"]
+};
+function genRec({carType,balance,zone,severity,carName,trackName,notes}){
+  const db=carType==="oval"?ovalRecs:gtRecs;
+  const data=db?.[balance]?.[zone];
+  if(!data)return null;
+  const cnt=sevCount[severity]||3;
+  return{carType,balance,zone,severity,carName:carName||"",trackName:trackName||"",notes:notes||"",desc:data.desc,fixes:data.fixes.slice(0,cnt),generatedAt:new Date().toISOString()};
+}
 
+// =============================================
+// LOCAL CACHE
+// =============================================
+const Cache={
+  set(k,v){try{localStorage.setItem("irh_c_"+k,JSON.stringify({t:Date.now(),v}))}catch{}},
+  get(k,maxMs=600000){try{const d=JSON.parse(localStorage.getItem("irh_c_"+k)||"null");return d&&(Date.now()-d.t)<maxMs?d.v:null}catch{return null}},
+  del(k){try{localStorage.removeItem("irh_c_"+k)}catch{}}
+};
+
+// =============================================
+// AI MODULE
+// =============================================
+const AI=(()=>{
+  const KEY="irh_ai_key";
+  const getKey=()=>localStorage.getItem(KEY)||"";
+  const setKey=k=>{if(k)localStorage.setItem(KEY,k);else localStorage.removeItem(KEY)};
+  const isOk=()=>!!localStorage.getItem(KEY);
+  async function generate({carType,balance,zone,severity,carName,trackName,notes}){
+    const key=getKey();if(!key)throw new Error("No API key configured");
+    const zl={entry:"corner entry",center:"mid-corner",midcorner:"mid-corner",exit:"corner exit"}[zone]||zone;
+    const cl=carType==="oval"?"oval/stock car (leaf springs, live axle)":"GT/sports car (independent suspension, aero)";
+    const cnt=severity==="slight"?2:severity==="severe"?5:3;
+    const prompt=[
+      `You are an expert iRacing setup engineer. Give ${cnt} prioritized setup adjustments for this problem.`,
+      `Car type: ${cl}`,
+      `Problem: ${balance} at ${zl}`,
+      `Severity: ${severity}`,
+      carName?`Car model: ${carName}`:"",
+      trackName?`Track: ${trackName}`:"",
+      notes?`Driver description: ${notes}`:"",
+      "",
+      `Respond ONLY with a JSON array of exactly ${cnt} objects. Each object must have three string fields: "cat" (short category like "Springs (Rear)", "Brake Bias", "ARB (Front)"), "adj" (specific adjustment with numeric values where possible), "why" (1-2 sentence physics explanation). No markdown, no extra text.`
+    ].filter(Boolean).join("\n");
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true","content-type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5",max_tokens:1024,messages:[{role:"user",content:prompt}]})});
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(`AI ${r.status}: ${e.error?.message||r.statusText}`)}
+    const data=await r.json();
+    const text=data.content?.[0]?.text||"";
+    const m=text.match(/\[[\s\S]*\]/);
+    if(!m)throw new Error("Could not parse AI response");
+    const fixes=JSON.parse(m[0]);
+    if(!Array.isArray(fixes)||!fixes.length)throw new Error("Empty AI response");
+    return fixes;
+  }
+  return{getKey,setKey,isOk,generate};
+})();
+
+// =============================================
+// GITHUB API
+// =============================================
+const GH=(()=>{
+  const BASE="https://api.github.com";
+  const cfg=()=>{try{return JSON.parse(localStorage.getItem("irh_cfg")||"{}")}catch{return{}}};
+  const saveCfg=c=>localStorage.setItem("irh_cfg",JSON.stringify(c));
+  const isOk=()=>{const c=cfg();return!!(c.token&&c.owner&&c.repo)};
+  async function api(path,opts={}){
+    const c=cfg();
+    if(!c.token)throw new Error("Not configured");
+    const r=await fetch(`${BASE}${path}`,{...opts,headers:{"Authorization":`Bearer ${c.token}`,"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28","Content-Type":"application/json",...(opts.headers||{})}});
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(`GitHub ${r.status}: ${e.message||r.statusText}`)}
+    return r.json();
+  }
+  async function readJSON(path){
+    const c=cfg();
+    try{
+      const d=await api(`/repos/${c.owner}/${c.repo}/contents/${path}`);
+      return{content:JSON.parse(atob(d.content.replace(/\n/g,""))),sha:d.sha};
+    }catch(e){if(e.message.includes("404"))return{content:null,sha:null};throw e}
+  }
+  async function writeJSON(path,content,sha){
+    const c=cfg();
+    const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(content,null,2))));
+    return api(`/repos/${c.owner}/${c.repo}/contents/${path}`,{method:"PUT",body:JSON.stringify({message:`iRacing Hub: update ${path}`,content:encoded,...(sha?{sha}:{})})});
+  }
+  async function loadSetups(){const r=await readJSON("data/setups.json");return r.content||[]}
+  async function saveSetup(s){let{content:arr,sha}=await readJSON("data/setups.json");if(!arr)arr=[];arr.push({...s,id:Date.now().toString(),savedAt:new Date().toISOString()});await writeJSON("data/setups.json",arr,sha);return arr[arr.length-1]}
+  async function delSetup(id){let{content:arr,sha}=await readJSON("data/setups.json");if(!arr)return;await writeJSON("data/setups.json",arr.filter(x=>x.id!==id),sha)}
+  async function loadSch(){const r=await readJSON("data/schedule.json");return r.content||[]}
+  async function saveRace(race){let{content:arr,sha}=await readJSON("data/schedule.json");if(!arr)arr=[];arr.push({...race,id:Date.now().toString(),createdAt:new Date().toISOString()});arr.sort((a,b)=>new Date(a.raceDate)-new Date(b.raceDate));await writeJSON("data/schedule.json",arr,sha);return arr[arr.length-1]}
+  async function delRace(id){let{content:arr,sha}=await readJSON("data/schedule.json");if(!arr)return;await writeJSON("data/schedule.json",arr.filter(x=>x.id!==id),sha)}
+  async function test(){const c=cfg();const r=await api(`/repos/${c.owner}/${c.repo}`);return r.full_name}
+  return{cfg,saveCfg,isOk,test,loadSetups,saveSetup,delSetup,loadSch,saveRace,delRace};
+})();
+
+// =============================================
+// APP
+// =============================================
+const $=id=>document.getElementById(id);
+const all=s=>document.querySelectorAll(s);
+let state={carType:"oval",balance:null,zone:null,severity:"moderate",lastRec:null,setups:[],schedule:[]};
+
+function toast(msg,type=""){
+  const el=$("toast");el.textContent=msg;el.className=`toast show${type?" "+type:""}`;
+  clearTimeout(el._t);el._t=setTimeout(()=>{el.className="toast"},3000);
+}
+
+// ---- TABS ----
+all(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>{
+  all(".nav-btn").forEach(b=>b.classList.remove("on"));
+  all(".pane").forEach(p=>p.classList.remove("on"));
+  btn.classList.add("on");
+  $(`pane-${btn.dataset.tab}`).classList.add("on");
+  if(btn.dataset.tab==="library")loadLib();
+  if(btn.dataset.tab==="schedule")loadSch();
+}));
+
+// ---- SETTINGS PANEL ----
+function closePanel(){$("panel").classList.remove("on");$("overlay").classList.remove("on")}
+$("ghToggle").addEventListener("click",openPanel);
+$("closePanel").addEventListener("click",closePanel);
+$("overlay").addEventListener("click",closePanel);
+$("saveGH").addEventListener("click",async()=>{
+  const o=$("ghOwner").value.trim(),r=$("ghRepo").value.trim(),t=$("ghToken").value.trim();
+  if(!o||!r||!t){setStatus("ghStatus","All three fields are required.","err");return}
+  GH.saveCfg({owner:o,repo:r,token:t});
+  setStatus("ghStatus","Testing…","load");
+  try{const name=await GH.test();setStatus("ghStatus",`✓ Connected to ${name}`,"ok");toast("GitHub connected!","ok");$("ghToggle").classList.remove("pulse")}
+  catch(e){setStatus("ghStatus",`✗ ${e.message}`,"err")}
+});
+function setStatus(id,msg,type){const el=$(id);el.textContent=msg;el.className=`status-msg ${type}`}
+
+// ---- BUILDER ----
+function buildTgl(containerId,opts,stateKey){
+  const el=$(containerId);
+  el.innerHTML=opts.map(o=>`<button class="tgl-btn${state[stateKey]===o.v?" on":""}" data-v="${o.v}">${o.label}</button>`).join("");
+  el.querySelectorAll(".tgl-btn").forEach(b=>b.addEventListener("click",()=>{
+    el.querySelectorAll(".tgl-btn").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");state[stateKey]=b.dataset.v;
+  }));
+}
+function buildZones(){
+  const zones=state.carType==="oval"
+    ?[{v:"entry",icon:"↘",label:"Entry"},{v:"center",icon:"◎",label:"Center"},{v:"exit",icon:"↗",label:"Exit"}]
+    :[{v:"entry",icon:"↘",label:"Entry"},{v:"midcorner",icon:"◎",label:"Mid-Corner"},{v:"exit",icon:"↗",label:"Exit"}];
+  const el=$("zoneBtns");
+  el.innerHTML=zones.map(z=>`<button class="zone-btn${state.zone===z.v?" on":""}" data-z="${z.v}"><span class="zone-icon">${z.icon}</span>${z.label}</button>`).join("");
+  el.querySelectorAll(".zone-btn").forEach(b=>b.addEventListener("click",()=>{
+    el.querySelectorAll(".zone-btn").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");state.zone=b.dataset.z;
+  }));
+}
+function buildBalance(){
+  const opts=state.carType==="oval"
+    ?[{v:"loose",label:"Loose (Oversteer)"},{v:"tight",label:"Tight (Understeer)"}]
+    :[{v:"oversteer",label:"Oversteer"},{v:"understeer",label:"Understeer"}];
+  buildTgl("balanceTgl",opts,"balance");
+}
+function fillCarDL(){
+  $("carDL").innerHTML=(carOpts[state.carType]||[]).map(c=>`<option value="${c}">`).join("");
+}
+function initBuilder(){
+  $("carTypeTgl").querySelectorAll(".tgl-btn").forEach(b=>b.addEventListener("click",()=>{
+    $("carTypeTgl").querySelectorAll(".tgl-btn").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");state.carType=b.dataset.v;state.balance=null;state.zone=null;
+    buildBalance();buildZones();fillCarDL();
+  }));
+  $("severityTgl").querySelectorAll(".tgl-btn").forEach(b=>b.addEventListener("click",()=>{
+    $("severityTgl").querySelectorAll(".tgl-btn").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");state.severity=b.dataset.v;
+  }));
+  $("generateBtn").addEventListener("click",generate);
+  buildBalance();buildZones();fillCarDL();
+}
+async function generate(){
+  if(!state.balance){toast("Pick a balance problem first.");return}
+  if(!state.zone){toast("Pick a track zone.");return}
+  const params={carType:state.carType,balance:state.balance,zone:state.zone,severity:state.severity,
+    carName:$("carName").value.trim(),trackName:$("trackName").value.trim(),notes:$("driverNotes").value.trim()};
+  if(AI.isOk()){
+    const btn=$("generateBtn");btn.disabled=true;btn.textContent="Asking AI…";
+    $("results").innerHTML=`<div class="placeholder"><div class="spinner" style="width:32px;height:32px;border-width:3px"></div><p>Claude is analyzing your setup problem…</p></div>`;
+    try{
+      const fixes=await AI.generate(params);
+      const zl={entry:"Corner Entry",center:"Mid-Corner",midcorner:"Mid-Corner",exit:"Corner Exit"}[params.zone]||params.zone;
+      const rec={...params,desc:`AI-generated for ${params.balance} at ${zl.toLowerCase()}`,fixes,generatedAt:new Date().toISOString(),aiGenerated:true};
+      state.lastRec=rec;renderRec(rec);
+    }catch(e){
+      toast(`AI error: ${e.message} — using built-in guide`,"err");
+      const rec=genRec(params);if(!rec){toast("No data for that combination.","err");return}
+      state.lastRec=rec;renderRec(rec);
+    }finally{btn.disabled=false;btn.textContent="Generate Recommendations →"}
+  }else{
+    const rec=genRec(params);if(!rec){toast("No data for that combination.","err");return}
+    state.lastRec=rec;renderRec(rec);
+  }
+}
+function renderRec(r){
+  const bClass={loose:"b-loose",tight:"b-tight",oversteer:"b-oversteer",understeer:"b-understeer"}[r.balance]||"b-sev";
+  const zLabel={entry:"Corner Entry",center:"Mid-Corner",midcorner:"Mid-Corner",exit:"Corner Exit"}[r.zone]||r.zone;
+  const fixes=r.fixes.map((f,i)=>`
+    <div class="fix">
+      <div class="fix-hd"><div class="fix-n">${i+1}</div><div class="fix-cat">${esc(f.cat)}</div></div>
+      <div class="fix-adj">${esc(f.adj)}</div>
+      <div class="fix-why">${esc(f.why)}</div>
+    </div>`).join("");
+  const ct=[r.carName&&`🏎 ${r.carName}`,r.trackName&&`📍 ${r.trackName}`].filter(Boolean).join(" · ");
+  $("results").innerHTML=`
+    <div class="rec-card">
+      <div class="rec-hd">
+        <div class="rec-meta">
+          <span class="badge b-${r.carType}">${r.carType==="oval"?"Oval":"GT / Sports Car"}</span>
+          <span class="badge ${bClass}">${r.balance}</span>
+          <span class="badge b-zone">${zLabel}</span>
+          <span class="badge b-sev">${r.severity}</span>
+          ${r.aiGenerated?`<span class="badge b-ai">✦ AI</span>`:""}
+        </div>
+        <div class="rec-title">Setup Recommendations</div>
+        <div class="rec-desc">"${esc(r.desc)}"</div>
+        ${ct?`<div class="rec-ct">${esc(ct)}</div>`:""}
+      </div>
+      <div class="fixes">${fixes}</div>
+      <div class="rec-ft">
+        ${r.notes?`<div class="rec-notes">📝 ${esc(r.notes)}</div>`:"<div></div>"}
+        <button class="btn btn-p btn-sm" id="saveRecBtn">Save Setup</button>
+      </div>
+    </div>`;
+  $("saveRecBtn").addEventListener("click",()=>{
+    if(!GH.isOk()){toast("Configure GitHub first.","err");return}
+    const parts=[r.carName,r.trackName,r.balance].filter(Boolean);
+    $("setupTitle").value=parts.join(" — ");
+    setStatus("saveStatus","","");$("saveOv").classList.add("on");
+  });
+}
+
+// ---- SAVE MODAL ----
+$("confirmSave").addEventListener("click",async()=>{
+  const title=$("setupTitle").value.trim();
+  if(!title){setStatus("saveStatus","Enter a name.","err");return}
+  $("confirmSave").disabled=true;setStatus("saveStatus","Saving…","load");
+  try{
+    await GH.saveSetup({...state.lastRec,title});
+    Cache.del("setups");
+    $("saveOv").classList.remove("on");toast("Setup saved! ✓","ok");
+  }catch(e){setStatus("saveStatus",`Error: ${e.message}`,"err")}
+  finally{$("confirmSave").disabled=false}
+});
+
+// ---- LIBRARY ----
+async function loadLib(){
+  if(!GH.isOk()){showBanner("setupGrid");$("libCount").textContent="";return}
+  // Show cached data instantly
+  const cached=Cache.get("setups");
+  if(cached){state.setups=cached;renderLib(cached);$("libCount").textContent+=` (refreshing…)`;}
+  else $("setupGrid").innerHTML=`<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading from GitHub…</div>`;
+  try{
+    state.setups=await GH.loadSetups();
+    Cache.set("setups",state.setups);
+    renderLib(state.setups);
+  }catch(e){
+    if(!cached)$("setupGrid").innerHTML=`<div class="empty" style="grid-column:1/-1"><p>Error: ${esc(e.message)}</p></div>`;
+    else toast("Could not refresh from GitHub — showing cached data","err");
+  }
+}
+function renderLib(arr){
+  $("libCount").textContent=`${arr.length} setup${arr.length!==1?"s":""}`;
+  if(!arr.length){
+    $("setupGrid").innerHTML=`<div class="empty" style="grid-column:1/-1"><svg width="44" height="44" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="19" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 3"/><path d="M11 22 Q22 10 33 22 Q22 34 11 22Z" fill="currentColor" opacity=".25"/></svg><p>No setups saved yet. Use the <strong>Setup Builder</strong> to generate your first one.</p></div>`;
+    return;
+  }
+  const bMap={loose:"b-loose",tight:"b-tight",oversteer:"b-oversteer",understeer:"b-understeer"};
+  $("setupGrid").innerHTML=arr.map(s=>{
+    const ct=[s.carName,s.trackName].filter(Boolean).join(" · ");
+    const fx=s.fixes?s.fixes.slice(0,2).map(f=>f.cat).join(", "):"";
+    const dt=s.savedAt?new Date(s.savedAt).toLocaleDateString():"";
+    return`<div class="setup-card">
+      <div class="sc-hd"><div class="sc-title">${esc(s.title||"Untitled")}</div><span class="badge b-${s.carType}">${s.carType==="oval"?"Oval":"GT"}</span></div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap"><span class="badge ${bMap[s.balance]||"b-sev"}">${s.balance}</span><span class="badge b-zone">${s.zone}</span></div>
+      ${ct?`<div class="sc-info">${esc(ct)}</div>`:""}
+      ${fx?`<div class="sc-fixes">Fixes: ${esc(fx)}</div>`:""}
+      <div class="sc-actions"><button class="btn btn-d btn-sm del-s" data-id="${s.id}">Delete</button>${dt?`<span class="sc-date">${dt}</span>`:""}</div>
+    </div>`;
+  }).join("");
+  all(".del-s").forEach(b=>b.addEventListener("click",async()=>{
+    if(!confirm("Delete this setup?"))return;
+    try{await GH.delSetup(b.dataset.id);Cache.del("setups");toast("Deleted.","ok");loadLib()}
+    catch(e){toast(e.message,"err")}
+  }));
+}
+$("libSearch").addEventListener("input",e=>{
+  const q=e.target.value.toLowerCase();
+  renderLib(state.setups.filter(s=>[s.title,s.carName,s.trackName,s.notes,s.balance,s.zone].filter(Boolean).some(v=>v.toLowerCase().includes(q))));
+});
+
+// ---- SCHEDULE ----
+async function loadSch(){
+  if(!GH.isOk()){showBanner("schList");return}
+  const cached=Cache.get("schedule");
+  if(cached){state.schedule=cached;renderSch(cached);}
+  else $("schList").innerHTML=`<div class="loading"><div class="spinner"></div>Loading from GitHub…</div>`;
+  try{
+    state.schedule=await GH.loadSch();
+    Cache.set("schedule",state.schedule);
+    renderSch(state.schedule);
+  }catch(e){
+    if(!cached)$("schList").innerHTML=`<div class="empty"><p>Error: ${esc(e.message)}</p></div>`;
+    else toast("Could not refresh from GitHub — showing cached data","err");
+  }
+}
+function renderSch(races){
+  if(!races.length){
+    $("schList").innerHTML=`<div class="empty"><svg width="44" height="44" viewBox="0 0 44 44" fill="none"><rect x="5" y="9" width="34" height="30" rx="4" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="5" y1="17" x2="39" y2="17" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="5" x2="14" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="30" y1="5" x2="30" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><p>No races yet. Click <strong>+ Add Race</strong> to get started.</p></div>`;
+    return;
+  }
+  const now=Date.now();
+  $("schList").innerHTML=races.map(race=>{
+    const rt=new Date(race.raceDate).getTime();
+    const past=rt<now;
+    const {num,lbl}=cdFmt(rt,now);
+    const ds=new Date(race.raceDate).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+    const ts=new Date(race.raceDate).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+    return`<div class="race-card${past?" past":""}" data-id="${race.id}">
+      <div class="r-cdown">
+        <div class="cdown-num" data-rt="${rt}">${num}</div>
+        <div class="cdown-lbl">${past?"Finished":lbl}</div>
+        <div class="cdown-date">${ds}<br>${ts}</div>
+      </div>
+      <div class="r-info">
+        <div class="r-league">${esc(race.league||"League")}</div>
+        <div class="r-name">${esc(race.track||"Unknown Track")}</div>
+        <div class="r-det">${race.series?`<span>🏎 ${esc(race.series)}</span>`:""}${race.laps?`<span>🔁 ${esc(race.laps)}</span>`:""}</div>
+        ${race.notes?`<div class="r-notes">📝 ${esc(race.notes)}</div>`:""}
+      </div>
+      <div class="r-actions"><button class="btn btn-d btn-sm del-r" data-id="${race.id}">Remove</button></div>
+    </div>`;
+  }).join("");
+  all(".del-r").forEach(b=>b.addEventListener("click",async()=>{
+    if(!confirm("Remove this race?"))return;
+    try{await GH.delRace(b.dataset.id);Cache.del("schedule");toast("Removed.","ok");loadSch()}
+    catch(e){toast(e.message,"err")}
+  }));
+  startTicker();
+}
+function cdFmt(rt,now){
+  const diff=rt-now;
+  if(diff<=0)return{num:"Done",lbl:"Complete"};
+  const s=Math.floor(diff/1000),d=Math.floor(s/86400),h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  if(d>0)return{num:`${d}d ${h}h`,lbl:"Until race start"};
+  if(h>0)return{num:`${h}h ${pad(m)}m`,lbl:"Until race start"};
+  if(m>0)return{num:`${m}m ${pad(sec)}s`,lbl:"Until race start"};
+  return{num:`${pad(sec)}s`,lbl:"Race starting!"};
+}
+function pad(n){return String(n).padStart(2,"0")}
+let ticker;
+function startTicker(){
+  clearInterval(ticker);
+  ticker=setInterval(()=>{
+    const now=Date.now();
+    all(".cdown-num[data-rt]").forEach(el=>{
+      const{num}=cdFmt(parseInt(el.dataset.rt),now);el.textContent=num;
+    });
+  },1000);
+}
+
+// ---- ADD RACE ----
+$("addRaceBtn").addEventListener("click",()=>{
+  if(!GH.isOk()){toast("Configure GitHub first.","err");return}
+  ["rLeague","rSeries","rTrack","rLaps","rNotes"].forEach(id=>{$(id).value=""});
+  $("rDate").value="";setStatus("raceStatus","","");$("addRaceOv").classList.add("on");
+});
+$("confirmRace").addEventListener("click",async()=>{
+  const track=$("rTrack").value.trim(),date=$("rDate").value;
+  if(!track||!date){setStatus("raceStatus","Track and date/time are required.","err");return}
+  $("confirmRace").disabled=true;setStatus("raceStatus","Saving…","load");
+  try{
+    await GH.saveRace({league:$("rLeague").value.trim(),series:$("rSeries").value.trim(),track,raceDate:new Date(date).toISOString(),laps:$("rLaps").value.trim(),notes:$("rNotes").value.trim()});
+    Cache.del("schedule");
+    $("addRaceOv").classList.remove("on");toast("Race added! ✓","ok");loadSch();
+  }catch(e){setStatus("raceStatus",`Error: ${e.message}`,"err")}
+  finally{$("confirmRace").disabled=false}
+});
+
+// ---- MODAL CLOSE ----
+all("[data-close]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.close).classList.remove("on")));
+[$("saveOv"),$("addRaceOv")].forEach(ov=>ov.addEventListener("click",e=>{if(e.target===ov)ov.classList.remove("on")}));
+
+// ---- BANNER ----
+function showBanner(containerId){
+  $(containerId).innerHTML=`<div class="banner"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r=".5" fill="currentColor"/></svg><span>GitHub storage not configured. <a href="#" id="bannerLink">Set it up here</a> — takes 2 minutes.</span></div>`;
+  $("bannerLink")?.addEventListener("click",e=>{e.preventDefault();openPanel()});
+}
+
+// ---- UTILS ----
+function esc(s){return s?String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"):""}
+
+// ---- AI KEY HANDLERS ----
+$("saveAI").addEventListener("click",()=>{
+  const k=$("aiKey").value.trim();
+  if(!k){setStatus("aiStatus","Paste your Anthropic API key first.","err");return}
+  AI.setKey(k);
+  setStatus("aiStatus","✓ AI key saved — Setup Builder will now use Claude","ok");
+  toast("AI key saved! Setup Builder is now AI-powered. ✦","ok");
+  $("aiKey").value="";
+});
+$("clearAI").addEventListener("click",()=>{
+  AI.setKey("");$("aiKey").value="";
+  setStatus("aiStatus","AI key cleared — using built-in setup guide","load");
+});
+function openPanel(){
+  const c=GH.cfg();
+  $("ghOwner").value=c.owner||"";$("ghRepo").value=c.repo||"";$("ghToken").value=c.token||"";
+  const hasAI=AI.isOk();
+  setStatus("aiStatus",hasAI?"✓ AI key is set — Setup Builder uses Claude":""  ,hasAI?"ok":"");
+  $("panel").classList.add("on");$("overlay").classList.add("on");$("ghStatus").textContent="";$("ghStatus").className="status-msg";
+}
+
+// ---- INIT ----
+initBuilder();
+if(!GH.isOk()){$("ghToggle").classList.add("pulse")}
+</script>
 </body>
 </html>
