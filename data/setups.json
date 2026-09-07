@@ -1,0 +1,33 @@
+[
+  {
+    "carType": "oval",
+    "balance": "loose",
+    "zone": "center",
+    "severity": "moderate",
+    "carName": "Gen 4",
+    "trackName": "Bristol",
+    "notes": "Center exit feels like i'm drifting",
+    "desc": "Rear slides at the apex under constant speed",
+    "fixes": [
+      {
+        "cat": "Rear Ride Height",
+        "adj": "Raise rear ride height +1/8 in",
+        "why": "Higher rear shifts weight rearward and increases rear mechanical grip"
+      },
+      {
+        "cat": "Sway Bar (Rear)",
+        "adj": "Stiffen rear sway bar",
+        "why": "Reduces mid-corner roll and keeps rear planted at the apex"
+      },
+      {
+        "cat": "Crossweight / Wedge",
+        "adj": "Add wedge +0.5%",
+        "why": "More right-rear load improves mid-corner rear traction"
+      }
+    ],
+    "generatedAt": "2026-09-07T04:39:19.292Z",
+    "title": "Gen 4 — Bristol — loose",
+    "id": "1788755965717",
+    "savedAt": "2026-09-07T04:39:25.717Z"
+  }
+]
